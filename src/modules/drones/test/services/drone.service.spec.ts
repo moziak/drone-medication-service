@@ -106,4 +106,16 @@ describe('drones service', () => {
       });
     });
   });
+
+  describe('getAvailableDrones', () => {
+    it('then it should return list of available drone', async () => {
+      jest
+        .spyOn(droneRepositoryMock, 'find')
+        .mockResolvedValueOnce([droneStub()]);
+      const drone = await service.getAvailableDrones();
+      expect(drone).toEqual([droneStub()]);
+      expect(drone[0].state).toEqual('IDLE');
+      expect(droneRepositoryMock.find).toBeCalled();
+    });
+  });
 });

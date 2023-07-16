@@ -40,4 +40,12 @@ export class DroneServiceImpl implements IDroneService {
       IsThrowableException(error);
     }
   }
+
+  public async getAvailableDrones(): Promise<DroneDto[]> {
+    try {
+      return await this.dronesRepository.find({ where: { state: 'IDLE' } });
+    } catch (error) {
+      IsThrowableException(error);
+    }
+  }
 }
