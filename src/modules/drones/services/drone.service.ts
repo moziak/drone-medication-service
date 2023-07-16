@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsThrowableException } from '../../../common/exceptions/IsThrowableException';
 import { Repository } from 'typeorm';
@@ -19,6 +23,19 @@ export class DroneServiceImpl implements IDroneService {
         throw new BadRequestException('Weight should not exceed 500');
       }
       return await this.dronesRepository.save({ ...payload });
+    } catch (error) {
+      IsThrowableException(error);
+    }
+  }
+
+  public async getDroneBatteryLevel(droneId: number): Promise<number> {
+    try {
+      const drone = await this.dronesRepository.findOne({
+        where: { id: droneId },
+        select: ['batteryCapacity'],
+      });
+      if (!drone) throw new NotFoundException('drone not found');
+      return drone.batteryCapacity;
     } catch (error) {
       IsThrowableException(error);
     }

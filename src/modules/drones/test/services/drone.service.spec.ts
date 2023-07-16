@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -72,6 +72,38 @@ describe('drones service', () => {
           );
           done();
         });
+    });
+  });
+
+  describe('getDroneBatteryLevel', () => {
+    describe('when valid drone id is supply', () => {
+      it('then it should return batter level of the drone', async () => {
+        jest
+          .spyOn(droneRepositoryMock, 'findOne')
+          .mockResolvedValueOnce(droneStub());
+        expect(await service.getDroneBatteryLevel(droneStub().id)).toEqual(
+          droneStub().batteryCapacity,
+        );
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
+    });
+
+    describe('when invalid drone id is supply', () => {
+      it('throws 404 error when drone is not found', (done) => {
+        jest.spyOn(droneRepositoryMock, 'findOne').mockResolvedValueOnce(null);
+
+        service
+          .getDroneBatteryLevel(100)
+          .then(() => {
+            done('should not get here');
+          })
+          .catch((error) => {
+            expect(error).toBeInstanceOf(NotFoundException);
+            expect(error.response.message).toEqual(`drone not found`);
+            done();
+          });
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
     });
   });
 });

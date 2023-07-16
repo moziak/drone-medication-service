@@ -21,4 +21,9 @@ export class DronesController {
   async Create(@Body() payload: CreateDroneInput): Promise<DroneDto> {
     return await this.droneService.create(payload);
   }
+
+  @Get(':id/battery')
+  async getDroneBatteryLevel(@Param('id') droneId: number): Promise<number> {
+    return this.droneService.getDroneBatteryLevel(droneId);
+  }
 }
