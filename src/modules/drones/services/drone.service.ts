@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsThrowableException } from '../../../common/exceptions/IsThrowableException';
 import { Repository } from 'typeorm';
 import { CreateDroneInput } from '../domain/dtos/createDrone.dto';
-import { DroneDto } from '../domain/dtos/drone.dto';
+import { DroneDto, DroneMedicationDto } from '../domain/dtos/drone.dto';
 import { Drone } from '../domain/entities/drone.entity';
 import { IDroneService } from '../domain/intefaces/drone.service';
 import { Medication } from 'src/modules/medications/domain/entities/medication.entity';
@@ -20,6 +20,18 @@ export class DroneServiceImpl implements IDroneService {
     @InjectRepository(Drone)
     private medicationsRepository: Repository<Medication>,
   ) {}
+
+  public async getLoadedDrone(droneId: number): Promise<DroneMedicationDto> {
+    try {
+      const drone = await this.getById(droneId);
+      const medications = await this.medicationsRepository.find({
+        where: { droneId },
+      });
+      return { ...drone, medications: medications };
+    } catch (error) {
+      IsThrowableException(error);
+    }
+  }
 
   public async create(payload: CreateDroneInput): Promise<DroneDto> {
     try {
@@ -89,7 +101,7 @@ export class DroneServiceImpl implements IDroneService {
       drone.state = 'LOADING';
       await this.updateDrone(droneId, { state: 'LOADING' });
 
-      const medications: Medication[] = items.map((item) => {
+      const medications = items.map((item) => {
         return {
           droneId,
           ...item,

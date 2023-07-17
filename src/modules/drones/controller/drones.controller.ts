@@ -2,7 +2,7 @@ import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { MedicationItemDto } from 'src/modules/medications/domain/entities/dtos/medicationItem.dto';
 import { CreateDroneInput } from '../domain/dtos/createDrone.dto';
-import { DroneDto } from '../domain/dtos/drone.dto';
+import { DroneDto, DroneMedicationDto } from '../domain/dtos/drone.dto';
 import { LoadDroneDto } from '../domain/dtos/loadDrone.dto';
 import { IDroneService } from '../domain/intefaces/drone.service';
 import { TYPES } from '../domain/intefaces/types';
@@ -44,5 +44,10 @@ export class DronesController {
     @Body() payload: LoadDroneDto,
   ): Promise<void> {
     return this.droneService.loadDrone(id, payload.items);
+  }
+
+  @Get(':id/loaded-items')
+  async loadedMedication(@Param('id') id: number): Promise<DroneMedicationDto> {
+    return this.droneService.getLoadedDrone(id);
   }
 }
