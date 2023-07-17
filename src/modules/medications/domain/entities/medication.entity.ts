@@ -12,7 +12,7 @@ export class Medication {
   weight: number;
 
   @Column()
-  code: number;
+  code: string;
 
   @Column()
   image: string;

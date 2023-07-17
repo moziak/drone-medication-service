@@ -147,7 +147,7 @@ describe('drones service', () => {
         service
           .loadDrone(droneStub().id, [
             {
-              code: 1,
+              code: '1',
               image: 'image string',
               name: 'med 1',
               id: 1,
@@ -174,7 +174,7 @@ describe('drones service', () => {
         service
           .loadDrone(droneStub().id, [
             {
-              code: 1,
+              code: '1',
               image: 'image string',
               name: 'med 1',
               id: 1,
@@ -203,7 +203,7 @@ describe('drones service', () => {
         service
           .loadDrone(droneStub().id, [
             {
-              code: 1,
+              code: '1',
               image: 'image string',
               name: 'med 1',
               id: 1,
