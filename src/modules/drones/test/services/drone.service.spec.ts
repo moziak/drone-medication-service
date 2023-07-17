@@ -118,4 +118,108 @@ describe('drones service', () => {
       expect(droneRepositoryMock.find).toBeCalled();
     });
   });
+
+  describe('loadDrone', () => {
+    describe('when invalid drone id is supply', () => {
+      it('throws 404 error when drone is not found', (done) => {
+        jest.spyOn(droneRepositoryMock, 'findOne').mockResolvedValueOnce(null);
+        service
+          .loadDrone(droneStub().id, [])
+          .then(() => {
+            done('Should not get here');
+          })
+          .catch((error) => {
+            expect(error).toBeInstanceOf(NotFoundException);
+            expect(error.response.message).toEqual(
+              `drone with id:${droneStub().id} is not found`,
+            );
+            done();
+          });
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
+    });
+
+    describe('when weight exceed the allowed max value', () => {
+      it('throws 400 error', (done) => {
+        jest
+          .spyOn(droneRepositoryMock, 'findOne')
+          .mockResolvedValueOnce(droneStub());
+        service
+          .loadDrone(droneStub().id, [
+            {
+              code: 1,
+              image: 'image string',
+              name: 'med 1',
+              id: 1,
+              weight: 600,
+            },
+          ])
+          .then(() => {
+            done('Should not get here');
+          })
+          .catch((error) => {
+            expect(error).toBeInstanceOf(BadRequestException);
+            expect(error.response.message).toEqual(`Exceeded weight limit`);
+            done();
+          });
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
+    });
+
+    describe('when battery level is below 25%', () => {
+      it('throws 400 error', (done) => {
+        jest
+          .spyOn(droneRepositoryMock, 'findOne')
+          .mockResolvedValueOnce({ ...droneStub(), batteryCapacity: 20 });
+        service
+          .loadDrone(droneStub().id, [
+            {
+              code: 1,
+              image: 'image string',
+              name: 'med 1',
+              id: 1,
+              weight: 400,
+            },
+          ])
+          .then(() => {
+            done('Should not get here');
+          })
+          .catch((error) => {
+            expect(error).toBeInstanceOf(BadRequestException);
+            expect(error.response.message).toEqual(
+              `Battery level is below 25%`,
+            );
+            done();
+          });
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
+    });
+
+    describe('when drone is not IDLE', () => {
+      it('throws 400 error', (done) => {
+        jest
+          .spyOn(droneRepositoryMock, 'findOne')
+          .mockResolvedValueOnce({ ...droneStub(), state: 'LOADED' });
+        service
+          .loadDrone(droneStub().id, [
+            {
+              code: 1,
+              image: 'image string',
+              name: 'med 1',
+              id: 1,
+              weight: 400,
+            },
+          ])
+          .then(() => {
+            done('Should not get here');
+          })
+          .catch((error) => {
+            expect(error).toBeInstanceOf(BadRequestException);
+            expect(error.response.message).toEqual(`Drone not available`);
+            done();
+          });
+        expect(droneRepositoryMock.findOne).toBeCalled();
+      });
+    });
+  });
 });
