@@ -1,7 +1,7 @@
 
 ## Description
 
-## How to Run
+
 
 ## Installation
 
@@ -10,15 +10,21 @@ $ yarn install
 ```
 
 ## Running the app
+### Update `env` variables
+
+# Copy drone service env
+cp .env.example .env
 
 ```bash
 # development
-$ yarn run start
+  # to build app
+  $ yarn run build
+
+  # to run the app
+  $ yarn run start
 
 
 ## Test
-
-```bash
 # unit tests
 $ yarn run test
 

@@ -6,12 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsThrowableException } from '../../../common/exceptions/IsThrowableException';
 import { Repository } from 'typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateDroneInput } from '../domain/dtos/createDrone.dto';
 import { DroneDto, DroneMedicationDto } from '../domain/dtos/drone.dto';
 import { Drone } from '../domain/entities/drone.entity';
 import { IDroneService } from '../domain/intefaces/drone.service';
 import { Medication } from 'src/modules/medications/domain/entities/medication.entity';
 import { MedicationItemDto } from 'src/modules/medications/domain/entities/dtos/medicationItem.dto';
+import { DroneBatteryLog } from '../domain/entities/droneBattery.entity';
 
 @Injectable()
 export class DroneServiceImpl implements IDroneService {
@@ -19,7 +21,28 @@ export class DroneServiceImpl implements IDroneService {
     @InjectRepository(Drone) private dronesRepository: Repository<Drone>,
     @InjectRepository(Drone)
     private medicationsRepository: Repository<Medication>,
+    @InjectRepository(Drone)
+    private droneBatteryLogsRepository: Repository<DroneBatteryLog>,
   ) {}
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async checkBatteryLevel(): Promise<void> {
+    const idleDrones = await this.dronesRepository.find({
+      where: { state: 'IDLE' },
+    });
+    const logs = [];
+    if (idleDrones) {
+      idleDrones.forEach((drone) =>
+        logs.push({
+          batteryLevel: drone.batteryCapacity,
+          droneId: drone.id,
+          serialNumber: drone.serialNumber,
+          state: drone.state,
+        }),
+      );
+    }
+    this.droneBatteryLogsRepository.save(logs);
+  }
 
   public async getLoadedDrone(droneId: number): Promise<DroneMedicationDto> {
     try {

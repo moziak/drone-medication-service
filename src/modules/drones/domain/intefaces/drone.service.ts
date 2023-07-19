@@ -8,4 +8,5 @@ export interface IDroneService {
   getAvailableDrones(): Promise<DroneDto[]>;
   loadDrone(droneId: number, items: MedicationItemDto[]): Promise<void>;
   getLoadedDrone(droneId: number): Promise<DroneMedicationDto>;
+  checkBatteryLevel(): Promise<void>;
 }
